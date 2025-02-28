@@ -1,4 +1,15 @@
-# Simple-PHP-Query-Library-
+# Simple PHP Database Query Library
 
-This is a very simple PHP Library that may help in quickening your php development. It helps you with simple functions to handle most of your sql queries. Helpng you to reduce code reusabilities and helping you from writting lots of sql queries.
+A lightweight PHP library to simplify database queries using MySQLi or PDO.
 
+## Features
+- Easy-to-use query functions
+- Supports SELECT, INSERT, UPDATE, DELETE
+- Prevents SQL injection using prepared statements
+- Works with MySQL databases
+
+## Installation
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/ComibyteOrg/Simple-PHP-Query-Library-.git
+   cd Simple-PHP-Query-Library-
