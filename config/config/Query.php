@@ -1,47 +1,9 @@
 <?php 
-    namespace Config\Query;
+    require_once "Conn.php";
 
-    require "conn.php";
-    use InvalidArgumentException;
-    use Config\Conn\Conn;
-
-    class Query extends Conn{ 
-        // insert method
-        public function insert($table, $datas){
-            $columns = implode(', ', array_keys($datas));
-            $placeholders = implode(',', array_fill(0, count($datas), "?"));
-
-            $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-            $stmt = $this->conn->prepare($sql);
-
-            if($stmt == false){
-                die("Failed to prepare : ({$this->conn->error})");
-            }
-
-            $types = '';
-            foreach ($datas as $data) {
-                if (is_int($data)) {
-                    $types .= 'i';
-                } elseif (is_double($data) || is_float($data)) {
-                    $types .= 'd';
-                } else{
-                    $types .= 's';
-                }
-            }
-            // $type = str_repeat($types, count($datas));
-            $stmt->bind_param($types, ...array_values($datas));
-
-            if($stmt->execute()){
-                return true;
-            }else{
-                die("Failed to Execute: {$stmt->error}");
-            }
-        }
-
-
-
-        // select method 
-        public function select($table, $selectors = '*', $conditions = '', $params = [], $types = '') {
+    class Query extends Conn{
+        // Select Method
+        public function select($table, $selectors = "*", $conditions = "", $types = "", $params = array()){
             $columns = is_array($selectors) ? implode(', ', $selectors) : $selectors;
 
             $query = "SELECT $columns FROM $table";
@@ -63,9 +25,11 @@
             $result = $stmt->get_result();
 
             return $result;
-        }
+        } 
 
-        // update method
+
+
+        // Update method
         function update($table, $data, $where) {
             $setParts = [];
             $types = '';
@@ -74,7 +38,7 @@
             foreach ($data as $column => $value) {
                 $setParts[] = "`$column` = ?";
                 $types .= 's';  
-                $values[] = $value;
+                $values[] = $value;            
             }
         
             $setQuery = implode(', ', $setParts);
@@ -95,5 +59,57 @@
                 return false;
             }
         }
+
+
+        // Delete Method
+        public function delete($table, $condition = "", $datatypes = "", $values = []){
+            $query = "DELETE FROM $table WHERE $condition";
+            $stmt = $this->conn->prepare($query);
+
+            if($stmt->prepare($query) === false){
+                die("<h1>Failed to Prepare (Update):</h1> ". $this->conn->error);
+            }
+
+            $stmt->bind_param($datatypes, ...$values);
+
+            if(!$stmt->execute() || $stmt->errno){
+                die("<h1>Could Not delete Data: </h1>". $this->conn->error);
+            }
+
+            return $stmt->execute();
+        }
+
         
+
+        // Insert Method
+       public function insert($table, $datas){
+            $columns = implode(', ', array_keys($datas));
+            $placeholders = implode(',', array_fill(0, count($datas), "?"));
+
+            $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
+            $stmt = $this->conn->prepare($sql);
+
+            if($stmt == false){
+                die("<h1>Failed to prepare</h1>: ({$this->conn->error})");
+            }
+
+            $types = '';
+            foreach ($datas as $data) {
+                if (is_int($data)) {
+                    $types .= 'i';
+                } elseif (is_double($data) || is_float($data)) {
+                    $types .= 'd';
+                } else{
+                    $types .= 's';
+                }
+            }
+            // $type = str_repeat($types, count($datas));
+            $stmt->bind_param($types, ...array_values($datas));
+
+            if($stmt->execute()){
+                return true;
+            }else{
+                die("<h1>Failed to Execute </h1>: {$stmt->error}");
+            }
+        }
     }
