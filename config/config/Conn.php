@@ -1,6 +1,4 @@
 <?php 
-    namespace Config\Conn;
-    use mysqli;
     class Conn{
         private $db_host;
         private $db_user;
